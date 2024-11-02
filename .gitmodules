@@ -1,0 +1,3 @@
+[submodule "dependencies/wiiuse"]
+	path = dependencies/wiiuse
+	url = git@github.com:wiiuse/wiiuse.git
