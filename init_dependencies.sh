@@ -26,5 +26,6 @@ WIIUSE_BUILD_DIR="`pwd`"
 cmake .. -DCMAKE_INSTALL_PREFIX=$WIIUSE_BUILD_DIR -DCMAKE_BUILD_TYPE=Release
 
 make wiiuse
+make install
 
 popd
