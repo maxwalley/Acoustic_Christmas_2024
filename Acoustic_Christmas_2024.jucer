@@ -25,7 +25,8 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="wiiuse" extraFrameworks="IOBluetooth">
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="wiiuse" extraFrameworks="IOBluetooth"
+               iosBluetoothPermissionNeeded="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="Acoustic_Christmas_2024"
                        libraryPath="${PROJECT_DIR}/../../dependencies/wiiuse/build/lib"
