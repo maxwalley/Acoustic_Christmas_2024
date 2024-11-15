@@ -11,8 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "MainWindow.h"
-#include "MainComponent.h"
+#include "VideoProcessor.h"
 
 //==============================================================================
 class AcousticChristmas2024App  : public juce::JUCEApplication
@@ -31,6 +30,5 @@ public:
     void systemRequestedQuit() override;
 
 private:
-    std::unique_ptr<MainWindow> mainWindow;
-    std::unique_ptr<MainComponent> mainComponent;
+    std::unique_ptr<VideoProcessor> videoMan;
 };

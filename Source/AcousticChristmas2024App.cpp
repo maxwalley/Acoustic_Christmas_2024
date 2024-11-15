@@ -28,16 +28,12 @@ bool AcousticChristmas2024App::moreThanOneInstanceAllowed()
 
 void AcousticChristmas2024App::initialise(const juce::String& commandLine)
 {
-    mainWindow = std::make_unique<MainWindow>(getApplicationName());
-    mainComponent = std::make_unique<MainComponent>();
-    
-    mainWindow->setContentNonOwned(mainComponent.get(), true);
+    videoMan = std::make_unique<VideoProcessor>();
 }
 
 void AcousticChristmas2024App::shutdown()
 {
-    mainComponent.reset();
-    mainWindow.reset();
+    videoMan.reset();
 }
 
 void AcousticChristmas2024App::systemRequestedQuit()
