@@ -13,19 +13,19 @@ fi
 
 cd dependencies
 
-echo "Installing wiiuse"
+echo "Installing opencv"
 
-cd wiiuse
+cd opencv
 
 mkdir build
 
 cd build
 
-WIIUSE_BUILD_DIR="`pwd`"
+OPENCV_BUILD_DIR="`pwd`"
 
-cmake .. -DCMAKE_INSTALL_PREFIX=$WIIUSE_BUILD_DIR -DCMAKE_BUILD_TYPE=Release
+cmake -DCMAKE_INSTALL_PREFIX=$OPENCV_BUILD_DIR ..
 
-make wiiuse
-make install
+make -j 8
+make install -j 8
 
 popd
