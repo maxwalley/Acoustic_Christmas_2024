@@ -1,3 +1,2 @@
 *.DS_Store
-Builds
-JuceLibraryCode
+python_venv
