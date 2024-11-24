@@ -15,8 +15,6 @@ def audio_runner(stop_event):
     freq_signal = pyo.Sig(audio_freq)  # Frequency signal for the oscillator
     osc = pyo.Sine(freq=freq_signal, mul=0.5).out()
 
-    #s.stop()
-
     #Keep audio running, updating frequency if necessary
     while not stop_event.is_set():
         with audio_lock:
@@ -49,6 +47,8 @@ with mp_hands.Hands(
             print("Ignoring empty camera frame.")
             continue
 
+        frame = cv2.flip(frame, 1)
+
         # Convert the frame to RGB (MediaPipe works with RGB images)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -61,6 +61,22 @@ with mp_hands.Hands(
                 mp_drawing.draw_landmarks(
                     frame, hand_landmarks, mp_hands.HAND_CONNECTIONS
                 )
+
+                wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+
+                # Get the normalized x, y positions
+                x_norm = wrist.x  # Normalized x (0 to 1)
+                y_norm = wrist.y
+
+                y_norm = 1.0 - y_norm - 0.1
+
+                y_norm = y_norm * 1800 + 200
+
+                if(y_norm < 200):
+                    y_norm = 200
+
+                with audio_lock:
+                    audio_freq = y_norm
 
         # Display the output frame
         cv2.imshow('Hand Detection', frame)
