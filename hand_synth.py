@@ -4,21 +4,23 @@ import pyo
 import threading
 import time
 
-audio_freq = 440
-audio_lock = threading.Lock()
+max_oscillators = 40
+oscillator_params = [[0, 0, threading.Lock()]] * max_oscillators
 
 def audio_runner(stop_event):
     global audio_freq
     s = pyo.Server().boot()
     s.start()
 
-    freq_signal = pyo.Sig(audio_freq)  # Frequency signal for the oscillator
-    osc = pyo.Sine(freq=freq_signal, mul=0.5).out()
+    signals = [(pyo.Sig(1000), pyo.Sig(0.0))] * max_oscillators
+    oscillators = [pyo.Sine(freq=freq, mul=mul).out() for freq, mul in signals]
 
     #Keep audio running, updating frequency if necessary
     while not stop_event.is_set():
-        with audio_lock:
-            freq_signal.value = audio_freq  # Update frequency safely
+        for index, params in enumerate(oscillator_params):
+            with params[2]:
+                signals[index][0].value = params[0]
+                signals[index][1].value = params[1]
         time.sleep(0.1)  # Small delay to reduce CPU usage
 
 stop_event = threading.Event()
@@ -57,10 +59,26 @@ with mp_hands.Hands(
 
         # Draw hand landmarks if hands are detected
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
+
+            num_osc = len(results.multi_hand_landmarks)
+
+            print(num_osc)
+
+            if(num_osc > max_oscillators):
+                num_osc = max_oscillators
+
+            for index, osc in enumerate(oscillator_params):
+                if index >= num_osc:
+                    with oscillator_params[index][2]:
+                        oscillator_params[index][1] = 0.0
+
+            for index, hand_landmarks in enumerate(results.multi_hand_landmarks):
                 mp_drawing.draw_landmarks(
                     frame, hand_landmarks, mp_hands.HAND_CONNECTIONS
                 )
+
+                if index >= max_oscillators:
+                    break
 
                 wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
 
@@ -75,8 +93,9 @@ with mp_hands.Hands(
                 if(y_norm < 200):
                     y_norm = 200
 
-                with audio_lock:
-                    audio_freq = y_norm
+                with oscillator_params[index][2]:
+                    oscillator_params[index][0] = y_norm
+                    oscillator_params[index][1] = 1.0 / num_osc
 
         # Display the output frame
         cv2.imshow('Hand Detection', frame)
