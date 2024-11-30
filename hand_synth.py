@@ -3,6 +3,7 @@ import mediapipe as mp
 import pyo
 import threading
 import time
+import math
 
 max_oscillators = 40
 oscillator_params = [[0, 0, threading.Lock()] for _ in range(max_oscillators)]
@@ -72,6 +73,11 @@ with mp_hands.Hands(
                     with oscillator_params[index][2]:
                         oscillator_params[index][1] = 0.0
 
+            if num_osc <= 1:
+                level = 1.0
+            else:
+                level = 1.0 - math.pow(10, (6 * (num_osc - 1)) / 20)
+
             for index, hand_landmarks in enumerate(results.multi_hand_landmarks):
                 mp_drawing.draw_landmarks(
                     frame, hand_landmarks, mp_hands.HAND_CONNECTIONS
@@ -95,7 +101,7 @@ with mp_hands.Hands(
 
                 with oscillator_params[index][2]:
                     oscillator_params[index][0] = y_norm
-                    oscillator_params[index][1] = (1.0 / num_osc) / 2.0
+                    oscillator_params[index][1] = level
 
         # Display the output frame
         cv2.imshow('Hand Detection', frame)
