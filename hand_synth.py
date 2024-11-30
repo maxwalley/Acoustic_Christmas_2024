@@ -5,18 +5,20 @@ import threading
 import time
 
 max_oscillators = 40
-oscillator_params = [[0, 0, threading.Lock()]] * max_oscillators
+oscillator_params = [[0, 0, threading.Lock()] for _ in range(max_oscillators)]
 
 def audio_runner(stop_event):
     global audio_freq
     s = pyo.Server().boot()
-    s.start()
 
-    signals = [(pyo.Sig(1000), pyo.Sig(0.0))] * max_oscillators
+    signals = [(pyo.Sig(1000), pyo.Sig(0.0)) for _ in range(max_oscillators)]
     oscillators = [pyo.Sine(freq=freq, mul=mul).out() for freq, mul in signals]
+
+    s.start()
 
     #Keep audio running, updating frequency if necessary
     while not stop_event.is_set():
+
         for index, params in enumerate(oscillator_params):
             with params[2]:
                 signals[index][0].value = params[0]
@@ -38,7 +40,7 @@ cap = cv2.VideoCapture(0)
 # Configure MediaPipe Hands
 with mp_hands.Hands(
     static_image_mode=False,       # Real-time detection
-    max_num_hands=2,              # Detect up to 2 hands
+    max_num_hands=max_oscillators,              # Detect up to 2 hands
     min_detection_confidence=0.5, # Minimum confidence for detection
     min_tracking_confidence=0.5   # Minimum confidence for tracking
 ) as hands:
@@ -61,8 +63,6 @@ with mp_hands.Hands(
         if results.multi_hand_landmarks:
 
             num_osc = len(results.multi_hand_landmarks)
-
-            print(num_osc)
 
             if(num_osc > max_oscillators):
                 num_osc = max_oscillators
@@ -90,12 +90,12 @@ with mp_hands.Hands(
 
                 y_norm = y_norm * 1800 + 200
 
-                if(y_norm < 200):
-                    y_norm = 200
+                if(y_norm < 100):
+                    y_norm = 100
 
                 with oscillator_params[index][2]:
                     oscillator_params[index][0] = y_norm
-                    oscillator_params[index][1] = 1.0 / num_osc
+                    oscillator_params[index][1] = (1.0 / num_osc) / 2.0
 
         # Display the output frame
         cv2.imshow('Hand Detection', frame)
